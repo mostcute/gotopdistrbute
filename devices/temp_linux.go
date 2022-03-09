@@ -3,25 +3,35 @@
 package devices
 
 import (
-	"log"
+	"github.com/xxxserxxx/gotop/v4/metricapi"
+	"os"
 	"strings"
-
-	"github.com/shirou/gopsutil/host"
 )
 
+func FlushDEVs(){
+	sensorMap = nil
+	 _devs = nil
+	 _defaults  = nil
+	var tempUpdates1 []func(map[string]int) map[string]error
+	tempUpdates = tempUpdates1
+	devs()
+	RegisterTemp(getTemps)
+	RegisterDeviceList(Temperatures, devs, defs)
+}
 // All possible thermometers
 func devs() []string {
 	if sensorMap == nil {
 		sensorMap = make(map[string]string)
 	}
-	sensors, err := host.SensorsTemperatures()
-	if err != nil {
-		log.Printf("gopsutil reports %s", err)
-		if len(sensors) == 0 {
-			log.Printf("no temperature sensors returned")
-			return []string{}
-		}
-	}
+	//sensors, err := host.SensorsTemperatures()
+	//if err != nil {
+	//	log.Printf("gopsutil reports %s", err)
+	//	if len(sensors) == 0 {
+	//		log.Printf("no temperature sensors returned")
+	//		return []string{}
+	//	}
+	//}
+	sensors := metricapi.SensorsTemperatures(os.Getenv("REMOTE_SERVER"))
 	rv := make([]string, 0, len(sensors))
 	for _, sensor := range sensors {
 		label := sensor.SensorKey

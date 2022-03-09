@@ -2,13 +2,13 @@ package widgets
 
 import (
 	"fmt"
+	"github.com/xxxserxxx/gotop/v4/metricapi"
 	"log"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/VictoriaMetrics/metrics"
-	psNet "github.com/shirou/gopsutil/net"
-
 	ui "github.com/xxxserxxx/gotop/v4/termui"
 	"github.com/xxxserxxx/gotop/v4/utils"
 )
@@ -71,12 +71,12 @@ func (net *NetWidget) EnableMetric() {
 }
 
 func (net *NetWidget) update() {
-	interfaces, err := psNet.IOCounters(true)
-	if err != nil {
-		log.Println(tr.Value("widget.net.err.netactivity", err.Error()))
-		return
-	}
-
+	//interfaces, err := psNet.IOCounters(true)
+	//if err != nil {
+	//	log.Println(tr.Value("widget.net.err.netactivity", err.Error()))
+	//	return
+	//}
+	interfaces := metricapi.NetIOCounters(os.Getenv("REMOTE_SERVER"))
 	var totalBytesRecv uint64
 	var totalBytesSent uint64
 	interfaceMap := make(map[string]bool)

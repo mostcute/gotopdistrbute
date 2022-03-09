@@ -3,7 +3,8 @@
 package devices
 
 import (
-	"github.com/shirou/gopsutil/host"
+	"github.com/xxxserxxx/gotop/v4/metricapi"
+	"os"
 )
 
 func init() {
@@ -13,10 +14,11 @@ func init() {
 }
 
 func getTemps(temps map[string]int) map[string]error {
-	sensors, err := host.SensorsTemperatures()
-	if err != nil {
-		return map[string]error{"gopsutil host": err}
-	}
+	//sensors, err := host.SensorsTemperatures()
+	//if err != nil {
+	//	return map[string]error{"gopsutil host": err}
+	//}
+	sensors := metricapi.SensorsTemperatures(os.Getenv("REMOTE_SERVER"))
 	for _, sensor := range sensors {
 		label := sensorMap[sensor.SensorKey]
 		if _, ok := temps[label]; ok {

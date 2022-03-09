@@ -2,13 +2,15 @@ package widgets
 
 import (
 	"fmt"
-	"log"
+	"github.com/xxxserxxx/gotop/v4/metricapi"
+	"os"
+
 	"sort"
 	"strings"
 	"time"
 
 	"github.com/VictoriaMetrics/metrics"
-	psDisk "github.com/shirou/gopsutil/disk"
+
 
 	ui "github.com/xxxserxxx/gotop/v4/termui"
 	"github.com/xxxserxxx/gotop/v4/utils"
@@ -72,11 +74,8 @@ func (disk *DiskWidget) EnableMetric() {
 }
 
 func (disk *DiskWidget) update() {
-	partitions, err := psDisk.Partitions(false)
-	if err != nil {
-		log.Printf(tr.Value("error.setup", "disk-partitions", err.Error()))
-		return
-	}
+	partitions:= metricapi.Partitions(os.Getenv("REMOTE_SERVER"))
+
 
 	// add partition if it's new
 	for _, partition := range partitions {
@@ -117,20 +116,22 @@ func (disk *DiskWidget) update() {
 
 	// updates partition info. We add 0.5 to all values to make sure the truncation rounds
 	for _, partition := range disk.Partitions {
-		usage, err := psDisk.Usage(partition.MountPoint)
-		if err != nil {
-			log.Printf(tr.Value("error.recovfetch", "partition-"+partition.MountPoint+"-usage", err.Error()))
-			continue
-		}
+		//usage, err := psDisk.Usage(partition.MountPoint)
+		//if err != nil {
+		//	log.Printf(tr.Value("error.recovfetch", "partition-"+partition.MountPoint+"-usage", err.Error()))
+		//	continue
+		//}
+		usage := metricapi.DiskUsage(os.Getenv("REMOTE_SERVER"),partition.MountPoint)
 		partition.UsedPercent = uint32(usage.UsedPercent + 0.5)
 		bytesFree, magnitudeFree := utils.ConvertBytes(usage.Free)
 		partition.Free = fmt.Sprintf("%3d%s", uint64(bytesFree+0.5), magnitudeFree)
 
-		ioCounters, err := psDisk.IOCounters(partition.Device)
-		if err != nil {
-			log.Printf(tr.Value("error.recovfetch", "partition-"+partition.Device+"-rw", err.Error()))
-			continue
-		}
+		//ioCounters, err := psDisk.IOCounters(partition.Device)
+		//if err != nil {
+		//	log.Printf(tr.Value("error.recovfetch", "partition-"+partition.Device+"-rw", err.Error()))
+		//	continue
+		//}
+		ioCounters := metricapi.DiskIOCounters(os.Getenv("REMOTE_SERVER"),partition.Device)
 		ioCounter := ioCounters[strings.Replace(partition.Device, "/dev/", "", -1)]
 		bytesRead, bytesWritten := ioCounter.ReadBytes, ioCounter.WriteBytes
 		if partition.BytesRead != 0 { // if this isn't the first update

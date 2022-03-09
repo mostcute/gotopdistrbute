@@ -1,8 +1,11 @@
 package widgets
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/xxxserxxx/gotop/v4/metricapi"
 	"log"
+	"os"
 	"os/exec"
 	"sort"
 	"strconv"
@@ -134,11 +137,14 @@ func (proc *ProcWidget) filterProcs(procs []Proc) []Proc {
 }
 
 func (proc *ProcWidget) update() {
-	procs, err := getProcs()
-	if err != nil {
-		log.Printf(tr.Value("widget.proc.error.retrieve", err.Error()))
-		return
-	}
+	bytes := metricapi.GetProcs(os.Getenv("REMOTE_SERVER"))
+	var procs = []Proc{}
+	json.Unmarshal(bytes,&procs)
+	//procs, err := getProcs()
+	//if err != nil {
+	//	log.Printf(tr.Value("widget.proc.error.retrieve", err.Error()))
+	//	return
+	//}
 
 	// have to iterate over the entry number in order to modify the array in place
 	for i := range procs {

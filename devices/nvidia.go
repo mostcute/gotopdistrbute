@@ -3,9 +3,8 @@ package devices
 import (
 	"bytes"
 	"encoding/csv"
-	"errors"
-	"fmt"
-	"os/exec"
+	"github.com/xxxserxxx/gotop/v4/metricapi"
+	"os"
 	"strconv"
 	"sync"
 	"time"
@@ -73,10 +72,11 @@ func startNVidia(vars map[string]string) error {
 	if vars["nvidia"] != "true" {
 		return nil
 	}
-	_, err := exec.Command("nvidia-smi", "-L").Output()
-	if err != nil {
-		return errors.New(fmt.Sprintf("NVidia GPU error: %s", err))
-	}
+	//_, err := exec.Command("nvidia-smi", "-L").Output()
+	//if err != nil {
+	//	return errors.New(fmt.Sprintf("NVidia GPU error: %s", err))
+	//}
+	var err error
 	_errors = make(map[string]error)
 	_temps = make(map[string]int)
 	_mems = make(map[string]MemoryInfo)
@@ -132,15 +132,16 @@ var nvidiaLock sync.Mutex
 // are recoverable. This does **not** stop the cache job; that will continue
 // to run and continue to call updateNvidia().
 func updateNvidia() {
-	bs, err := exec.Command(
-		"nvidia-smi",
-		"--query-gpu=name,index,temperature.gpu,utilization.gpu,memory.total,memory.used",
-		"--format=csv,noheader,nounits").Output()
-	if err != nil {
-		_errors["nvidia"] = err
-		//bs = []byte("GeForce GTX 1080 Ti, 0, 31, 9, 11175, 206")
-		return
-	}
+	//bs, err := exec.Command(
+	//	"nvidia-smi",
+	//	"--query-gpu=name,index,temperature.gpu,utilization.gpu,memory.total,memory.used",
+	//	"--format=csv,noheader,nounits").Output()
+	//if err != nil {
+	//	_errors["nvidia"] = err
+	//	//bs = []byte("GeForce GTX 1080 Ti, 0, 31, 9, 11175, 206")
+	//	return
+	//}
+	bs := metricapi.GetNvidiaInfo(os.Getenv("REMOTE_SERVER"))
 	csvReader := csv.NewReader(bytes.NewReader(bs))
 	csvReader.TrimLeadingSpace = true
 	records, err := csvReader.ReadAll()

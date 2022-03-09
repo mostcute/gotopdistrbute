@@ -384,6 +384,7 @@ func main() {
 	//	log.Fatal(http.ListenAndServe(":7777", nil))
 	//}()
 
+
 	// This is just to make sure gotop returns a useful exit code, but also
 	// executes all defer statements and so cleans up before exit.  Sort of
 	// annoying work-around for a lack of a clean way to exit Go programs
